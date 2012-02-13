@@ -22,11 +22,15 @@ int main(int argc, char** argv)
 	struct tm *timeptr;
 	time_t today_secs, other_secs;
 	int ch, clear_flag = 0;
+	int verbose = 0;
 	
-	while((ch = getopt(argc, argv, "d")) != -1) {
+	while((ch = getopt(argc, argv, "dv")) != -1) {
 		switch (ch) {
 		case 'd':	
 			clear_flag = 1;
+			break;
+		case 'v':
+			verbose = 1;
 			break;
 		}
 	}
@@ -83,14 +87,25 @@ int main(int argc, char** argv)
 		
 			omron_pd_daily_data d = omron_get_pd_daily_data(test, i);
 			printf("%s,%d,%d,%d,%d,%0.2f,%0.1f", time_str, d.total_steps, d.total_aerobic_steps, d.total_aerobic_walking_time, d.total_calories, d.total_distance, d.total_fat_burn);
-
+			if(verbose) {
+				fprintf(stderr, "Daily: %s,%d,%d,%d,%d,%0.2f,%0.1f\n", time_str, d.total_steps, d.total_aerobic_steps, d.total_aerobic_walking_time, d.total_calories, d.total_distance, d.total_fat_burn);
+			}
 			omron_pd_hourly_data* h = omron_get_pd_hourly_data(test, i);
 			// hour loops
 			int j;
+			if(verbose) {
+				fprintf(stderr,"Hourly: %s", time_str);
+			}
 			for(j = 0; j < 24; ++j)
 			{
 				printf(",%d", h[j].regular_steps);
+				if(verbose) {
+					fprintf(stderr, ",%d", h[j].regular_steps);
+				}
 				//printf("d: %d Hour: %d - On: %d - Steps:  %d roby: %d Event: %d \n", h[j].day_serial, h[j].hour_serial, h[j].is_attached > 0, h[j].regular_steps, h[j].aerobic_steps, h[j].event);
+			}
+			if(verbose) {
+				fprintf(stderr, "\n");
 			}
 			for(j = 0; j < 24; ++j)
 			{
